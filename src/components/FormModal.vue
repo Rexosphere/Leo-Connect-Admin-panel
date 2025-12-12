@@ -66,15 +66,23 @@ const emit = defineEmits(['close', 'submit'])
 
 const formData = reactive({})
 
+// Convert DB integer values (0/1) to boolean for checkbox fields
+function getFieldValue(field, value) {
+  if (field.type === 'checkbox') {
+    return value === 1 || value === true || value === '1'
+  }
+  return value ?? field.default ?? ''
+}
+
 onMounted(() => {
   props.fields.forEach(field => {
-    formData[field.key] = props.initialData[field.key] ?? field.default ?? ''
+    formData[field.key] = getFieldValue(field, props.initialData[field.key])
   })
 })
 
 watch(() => props.initialData, (newData) => {
   props.fields.forEach(field => {
-    formData[field.key] = newData[field.key] ?? field.default ?? ''
+    formData[field.key] = getFieldValue(field, newData[field.key])
   })
 }, { deep: true })
 
