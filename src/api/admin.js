@@ -34,6 +34,7 @@ export const adminApi = {
         return fetchWithAuth(`/admin/users${query ? '?' + query : ''}`)
     },
     createUser: (data) => fetchWithAuth('/admin/users', { method: 'POST', body: JSON.stringify(data) }),
+    updateUser: (id, data) => fetchWithAuth(`/admin/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     deleteUser: (id) => fetchWithAuth(`/admin/users/${id}`, { method: 'DELETE' }),
 
     // Clubs
