@@ -41,7 +41,7 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="$emit('close')">Cancel</button>
+          <button type="button" class="btn btn-outline" @click="$emit('close')">Cancel</button>
           <button type="submit" class="btn btn-primary" :disabled="loading">
             {{ loading ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
           </button>

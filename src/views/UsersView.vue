@@ -144,6 +144,15 @@ onMounted(fetchUsers)
   font-size: 0.8rem;
 }
 
+.btn-secondary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6fd6;
+}
+
 .btn-danger {
   background: var(--danger);
   color: white;
