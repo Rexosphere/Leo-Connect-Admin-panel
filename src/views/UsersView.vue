@@ -30,6 +30,21 @@
         <template #is_webmaster="{ value }">
           <span :class="['badge', value ? 'badge-primary' : 'badge-success']">{{ value ? 'Webmaster' : 'Member' }}</span>
         </template>
+        <template #is_verified="{ row }">
+          <div class="verification-cell">
+            <span :class="['badge', row.is_verified ? 'badge-verified' : 'badge-unverified']">
+              {{ row.is_verified ? '✓ Verified' : '✗ Unverified' }}
+            </span>
+            <button 
+              class="btn btn-xs btn-toggle" 
+              :class="row.is_verified ? 'btn-unverify' : 'btn-verify'"
+              @click="toggleVerification(row)"
+              :disabled="verifyingUser === row.uid"
+            >
+              {{ verifyingUser === row.uid ? '...' : (row.is_verified ? 'Unverify' : 'Verify') }}
+            </button>
+          </div>
+        </template>
         <template #actions="{ row }">
           <div class="action-buttons">
             <button class="btn btn-sm btn-secondary" @click="openEditModal(row)">Edit</button>
@@ -64,6 +79,7 @@ const columns = [
   { key: 'display_name', label: 'User' },
   { key: 'leo_id', label: 'Leo ID' },
   { key: 'assigned_club_id', label: 'Club' },
+  { key: 'is_verified', label: 'Verified' },
   { key: 'is_webmaster', label: 'Role' },
   { key: 'actions', label: 'Actions' }
 ]
@@ -73,6 +89,7 @@ const formFields = [
   { key: 'display_name', label: 'Display Name', placeholder: 'User Display Name' },
   { key: 'bio', label: 'Bio', type: 'textarea', placeholder: 'User bio...' },
   { key: 'assigned_club_id', label: 'Assigned Club ID', placeholder: 'club-...' },
+  { key: 'is_verified', label: 'Verified', type: 'checkbox', checkboxLabel: 'User Leo ID is verified' },
   { key: 'is_webmaster', label: 'Webmaster', type: 'checkbox', checkboxLabel: 'Grant webmaster privileges' }
 ]
 
@@ -87,6 +104,9 @@ const searchQuery = ref('')
 const showModal = ref(false)
 const editData = ref({})
 const saving = ref(false)
+
+// Verification state
+const verifyingUser = ref(null)
 
 async function fetchUsers() {
   loading.value = true
@@ -130,6 +150,21 @@ async function deleteUser(id) {
   }
 }
 
+async function toggleVerification(user) {
+  verifyingUser.value = user.uid
+  try {
+    const newStatus = !user.is_verified
+    await adminApi.updateUser(user.uid, { is_verified: newStatus })
+    const userIndex = users.value.findIndex(u => u.uid === user.uid)
+    if (userIndex !== -1) {
+      users.value[userIndex].is_verified = newStatus ? 1 : 0
+    }
+  } catch (e) {
+    alert('Error toggling verification: ' + e.message)
+  }
+  verifyingUser.value = null
+}
+
 onMounted(fetchUsers)
 </script>
 
@@ -166,5 +201,63 @@ onMounted(fetchUsers)
   font-family: monospace;
   font-size: 0.9rem;
   color: var(--text-primary);
+}
+
+.verification-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.badge-verified {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-unverified {
+  background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.btn-xs {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-verify {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: white;
+}
+
+.btn-verify:hover:not(:disabled) {
+  background: linear-gradient(135deg, #219a52, #27ae60);
+  transform: translateY(-1px);
+}
+
+.btn-unverify {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+}
+
+.btn-unverify:hover:not(:disabled) {
+  background: linear-gradient(135deg, #c0392b, #a93226);
+  transform: translateY(-1px);
+}
+
+.btn-toggle:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>
