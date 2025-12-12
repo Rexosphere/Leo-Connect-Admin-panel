@@ -41,8 +41,7 @@ const loading = ref(false)
 async function handleLogin() {
   error.value = ''
   loading.value = true
-  await new Promise(r => setTimeout(r, 500))
-  const result = authStore.login(email.value, password.value)
+  const result = await authStore.login(email.value, password.value)
   if (result.success) router.push('/')
   else error.value = result.error
   loading.value = false

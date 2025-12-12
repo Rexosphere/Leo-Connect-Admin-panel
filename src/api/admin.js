@@ -1,6 +1,6 @@
 import { useAuthStore } from '../stores/auth'
 
-const API_BASE = 'https://leoconnect.rexosphere.com'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://leoconnect.rexosphere.com'
 
 async function fetchWithAuth(endpoint, options = {}) {
     const authStore = useAuthStore()
@@ -33,6 +33,7 @@ export const adminApi = {
         const query = new URLSearchParams(params).toString()
         return fetchWithAuth(`/admin/users${query ? '?' + query : ''}`)
     },
+    createUser: (data) => fetchWithAuth('/admin/users', { method: 'POST', body: JSON.stringify(data) }),
     deleteUser: (id) => fetchWithAuth(`/admin/users/${id}`, { method: 'DELETE' }),
 
     // Clubs
@@ -40,9 +41,14 @@ export const adminApi = {
         const query = new URLSearchParams(params).toString()
         return fetchWithAuth(`/admin/clubs${query ? '?' + query : ''}`)
     },
+    createClub: (data) => fetchWithAuth('/admin/clubs', { method: 'POST', body: JSON.stringify(data) }),
+    updateClub: (id, data) => fetchWithAuth(`/admin/clubs/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+    deleteClub: (id) => fetchWithAuth(`/admin/clubs/${id}`, { method: 'DELETE' }),
 
     // Districts
     getDistricts: () => fetchWithAuth('/admin/districts'),
+    createDistrict: (data) => fetchWithAuth('/admin/districts', { method: 'POST', body: JSON.stringify(data) }),
+    deleteDistrict: (name) => fetchWithAuth(`/admin/districts/${encodeURIComponent(name)}`, { method: 'DELETE' }),
 
     // Posts
     getPosts: (params = {}) => {
